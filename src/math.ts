@@ -1,3 +1,5 @@
+import type { SceneObject } from "./object.js";
+
 export class Mat {
     public mat: number[][];
 
@@ -145,6 +147,19 @@ export class Mat {
         const z = this.mat[2]![0]!
         return new Point(Math.round(this.mat[0]![0]! / z), Math.round(this.mat[1]![0]! / z));
     }
+
+    public toVec3() : Vec3 {
+        if(this.mat.length == 4) {
+            const z = this.mat[3]![0]!;
+            return new Vec3(this.mat[0]![0]! / z, this.mat[1]![0]! / z,this.mat[2]![0]! / z)
+        }
+
+        if(this.mat.length == 3) {
+            return new Vec3(this.mat[0]![0]!, this.mat[1]![0]! , this.mat[2]![0]!)
+        }
+
+        throw new Error("CANT TURN IT INTO VEC3");
+    }
 }
 
 export class Vec3 {
@@ -210,7 +225,7 @@ export class Point {
 
 }
 
-export class ClipingPlane {
+export class ClippingPlane {
     private a: number
     private b: number
     private c: number
@@ -224,7 +239,7 @@ export class ClipingPlane {
     }
 
     public distFromPoint(point: Vec3) : number {
-        const top = Math.abs(this.a * point.r + this.b * point.g + this.c * point.b - this.D)
+        const top = this.a * point.r + this.b * point.g + this.c * point.b - this.D
         const bottom = Math.sqrt(this.a * this.a + this.b * this.b + this.c * this.c)
         return top / bottom;
     }
@@ -243,4 +258,38 @@ export class ClipingPlane {
         const t = (-this.D -  planeNormal.dot(A)) / denominator;
         return A.add(AB.mul(t));
     }
+}
+
+export enum ObjectFrustumRelation {
+    OUTSIDE, 
+    INSIDE,
+    CUTS
+}
+
+// right just 45 degree FOV
+export class Frustum {
+    private nearPlane: ClippingPlane;
+    private leftPlane: ClippingPlane = new ClippingPlane(1 / Math.sqrt(2), 0, 1 / Math.sqrt(2));
+    private rightPlane: ClippingPlane = new ClippingPlane(- 1 / Math.sqrt(2), 0, 1 / Math.sqrt(2));
+    private bottomPlane: ClippingPlane = new ClippingPlane(0, 1 / Math.sqrt(2), 1 / Math.sqrt(2));
+    private topPlane: ClippingPlane = new ClippingPlane(0, -1 / Math.sqrt(2), 1 / Math.sqrt(2));
+
+    private allPlanes : ClippingPlane[]
+
+    constructor(d: number) {
+        this.nearPlane = new ClippingPlane(0, 0, 1, d);
+        this.allPlanes = [this.nearPlane, this.leftPlane, this.rightPlane, this.bottomPlane, this.topPlane]
+    }
+
+    public getSphereFrustumRelation(sphere: {center: Vec3, radius: number}) : ObjectFrustumRelation {
+        for(const plane of this.allPlanes) {
+            const dist = plane.distFromPoint(sphere.center);
+            if(dist > sphere.radius) continue;
+            if(Math.abs(dist) < sphere.radius) return ObjectFrustumRelation.CUTS;
+            return ObjectFrustumRelation.OUTSIDE;
+        }
+        return ObjectFrustumRelation.INSIDE;
+    }
+
+
 }

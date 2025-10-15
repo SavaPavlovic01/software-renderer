@@ -1,6 +1,6 @@
 import type { Camera } from "./camera.js"
 import { drawTriangle } from "./drawPrimitives.js"
-import { Mat, Vec3 } from "./math.js"
+import { Mat, ObjectFrustumRelation, Vec3 } from "./math.js"
 
 export abstract class SceneObject {
     protected vertices: Vec3[] = []
@@ -14,7 +14,7 @@ export abstract class SceneObject {
     private modelMatrix: Mat = new Mat(4, 4)
     private projectionMatrix: Mat = new Mat(4, 4)
 
-    private static d = 1;
+    protected static d = 1;
     private static vw = 2;
     private static vh = 2;
 
@@ -63,10 +63,30 @@ export abstract class SceneObject {
         this.updateModelMatrix();
     }
 
-    public renderObject(data: ImageDataArray, camera: Camera): void {
-        const viewMatrix = Mat.cameraMatrix(camera.translate, camera.rotation)
-        const completeMatrix = this.projectionMatrix.mult(viewMatrix).mult(this.modelMatrix);
+    private toCameraSpace(p0: Mat, p1: Mat, p2: Mat, viewMatrix: Mat) : [Mat, Mat, Mat] {
+        return [viewMatrix.mult(p0), viewMatrix.mult(p1), viewMatrix.mult(p2)]
+    }
 
+    private isInsideClippingSpace(viewMatrix: Mat, camera: Camera): ObjectFrustumRelation {
+        const sphereInModelSpace = this.getBoundingSphere()
+        const sphereCenterViewSpace = viewMatrix.mult(sphereInModelSpace.center.toMat());
+        const radiusScale = Math.max(Math.max(this.scale.r, this.scale.g), this.scale.b);
+        return camera.isSphereInsideFrustum({center: sphereCenterViewSpace.toVec3(), radius: sphereInModelSpace.radius * radiusScale}) 
+    }
+
+    public renderObject(data: ImageDataArray, camera: Camera): void {
+        const viewMatrix = Mat.cameraMatrix(camera.translate, camera.rotation).mult(this.modelMatrix);
+        const completeMatrix = this.projectionMatrix.mult(viewMatrix);
+
+        const state  = this.isInsideClippingSpace(viewMatrix, camera); 
+        if(state === ObjectFrustumRelation.OUTSIDE) {
+            console.log("SKIPPING RENDERING OUTSIDE OF FRUSTUM")
+            return
+        }
+
+        if(state === ObjectFrustumRelation.CUTS) {
+            console.log("IT CUTS NOT YET IMPLEMENTED")
+        }
 
         this.triangles.forEach( (v, i) => {
 

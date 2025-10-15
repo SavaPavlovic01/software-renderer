@@ -12,14 +12,16 @@ const projectVertex = (point: Vec3, d: number, cw: number, ch: number, vw: numbe
     return viewPortToCanvas(p, cw, ch, vw, vh)
 } 
 
+// TODO: Try out clipping with all planes, right now near is tested and works
+
 window.onload = () => {
 
     const canvas = document.getElementById("screen") as HTMLCanvasElement
     const scene = new Scene(canvas)
 
-    const cubePos = new Vec3(-1.5, 0, 10)
-    const cubeRotation = new Vec3(0, 0, 0);
-    const cubeScale = new Vec3(2, 2, 2)
+    const cubePos = new Vec3(1.5, 10, 10)
+    const cubeRotation = new Vec3(0, 1, 0);
+    const cubeScale = new Vec3(1, 1, 1)
 
     const cube = new Cube(cubePos, cubeRotation, cubeScale, canvas.width, canvas.height)
     //const cube2 = new Cube(cubePos.add(new Vec3(3, 0, 0)), cubeRotation, cubeScale, canvas.width, canvas.height)
