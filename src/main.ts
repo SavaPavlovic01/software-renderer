@@ -16,11 +16,41 @@ const projectVertex = (point: Vec3, d: number, cw: number, ch: number, vw: numbe
 
 window.onload = () => {
 
+    window.onkeydown = (ev: KeyboardEvent) => {
+        if(ev.key === 'a'){
+            cube.move(-0.25, 0, 0);
+            scene.renderScene();
+        }
+
+        if(ev.key === 'd'){
+            cube.move(0.25, 0, 0);
+            scene.renderScene();
+        }
+        
+        if(ev.key === 'w'){
+            cube.move(0, 0.25, 0);
+            scene.renderScene();
+        }
+        if(ev.key === 's'){
+            cube.move(0, -0.25, 0);
+            scene.renderScene();
+        }
+
+        if(ev.key === 'q'){
+            cube.move(0, 0, -0.25);
+            scene.renderScene();
+        }
+        if(ev.key === 'e'){
+            cube.move(0, 0, 0.25);
+            scene.renderScene();
+        }
+    }
+
     const canvas = document.getElementById("screen") as HTMLCanvasElement
     const scene = new Scene(canvas)
 
-    const cubePos = new Vec3(1.5, 10, 10)
-    const cubeRotation = new Vec3(0, 1, 0);
+    const cubePos = new Vec3(-3, 0, 10)
+    const cubeRotation = new Vec3(0, 0, 0);
     const cubeScale = new Vec3(1, 1, 1)
 
     const cube = new Cube(cubePos, cubeRotation, cubeScale, canvas.width, canvas.height)

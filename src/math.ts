@@ -182,11 +182,11 @@ export class Vec3 {
     }
 
     public dot(v : Vec3) : number {
-        return v.r * this.r, v.g * this.g, v.b * this.b
+        return v.r * this.r + v.g * this.g + v.b * this.b
     }
 
     public mul(v: number) : Vec3 {
-        return new Vec3(this.r * v, this.g * v, this.b * v,)
+        return new Vec3(this.r * v, this.g * v, this.b * v)
     }
     
     public div(v: number): Vec3 {
@@ -281,14 +281,30 @@ export class Frustum {
         this.allPlanes = [this.nearPlane, this.leftPlane, this.rightPlane, this.bottomPlane, this.topPlane]
     }
 
-    public getSphereFrustumRelation(sphere: {center: Vec3, radius: number}) : ObjectFrustumRelation {
+    public getSphereFrustumRelation(sphere: {center: Vec3, radius: number}) : {relation: ObjectFrustumRelation, cutPlanes: ClippingPlane[]} {
+        const cutPlanes: ClippingPlane[] = []
+        let relation = ObjectFrustumRelation.INSIDE;
         for(const plane of this.allPlanes) {
             const dist = plane.distFromPoint(sphere.center);
             if(dist > sphere.radius) continue;
-            if(Math.abs(dist) < sphere.radius) return ObjectFrustumRelation.CUTS;
-            return ObjectFrustumRelation.OUTSIDE;
+            if(Math.abs(dist) < sphere.radius){
+                cutPlanes.push(plane);
+                relation = ObjectFrustumRelation.CUTS;
+                continue
+            }
+            return {relation: ObjectFrustumRelation.OUTSIDE, cutPlanes:[]};
         }
-        return ObjectFrustumRelation.INSIDE;
+        return {relation: relation, cutPlanes: cutPlanes}
+    }
+
+
+}
+
+export class Triangle {
+    public points: Vec3[] = []
+
+    constructor(p0: Vec3, p1: Vec3, p2: Vec3) {
+        this.points = [p0, p1, p2];
     }
 
 

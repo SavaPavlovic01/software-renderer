@@ -1,4 +1,4 @@
-import  { Frustum, ObjectFrustumRelation, Vec3 } from "./math.js";
+import  { ClippingPlane, Frustum, ObjectFrustumRelation, Vec3 } from "./math.js";
 import { SceneObject } from "./object.js";
 
 export class Camera extends SceneObject {
@@ -12,7 +12,7 @@ export class Camera extends SceneObject {
         console.log("camera does not get rendered")
     }
 
-    public isSphereInsideFrustum(sphere: {center: Vec3, radius: number}) : ObjectFrustumRelation {
+    public isSphereInsideFrustum(sphere: {center: Vec3, radius: number}) : {relation: ObjectFrustumRelation, cutPlanes: ClippingPlane[]} {
         return this.frustum.getSphereFrustumRelation(sphere); 
     }
 }

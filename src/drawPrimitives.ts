@@ -1,7 +1,6 @@
 import { Point, Vec3 } from "./math.js"
 
 export const writePixel = (pixelCoords: Point, data: ImageDataArray, w: number, h: number, r: number = 0, g: number = 0, b: number = 0) => {
-    console.log(pixelCoords, h, w)
     if(pixelCoords.y > w || pixelCoords.x > w) { // TODO: change when you fix the h
         console.log("NPT")
         return
@@ -11,6 +10,12 @@ export const writePixel = (pixelCoords: Point, data: ImageDataArray, w: number, 
     data[index + 1] = g;
     data[index + 2] = b;
     data[index + 3] = 255
+}
+
+export const clearScreen = (data: ImageDataArray) => {
+    for(let i = 0; i < data.length; i++) {
+        data[i] = 0;
+    }
 }
 
 export const interpolate = (i0: number, d0: number, i1: number, d1: number) : number[] => {
@@ -29,7 +34,6 @@ export const interpolate = (i0: number, d0: number, i1: number, d1: number) : nu
 
 
 export const DrawLine = (start: Point, end: Point, color: Vec3, data: ImageDataArray, w: number) => {
-    console.log(start, end)
     if(Math.abs(end.x - start.x) > Math.abs(end.y - start.y)) { 
         if(start.x > end.x) {
             [start, end] = [end, start]
@@ -45,7 +49,6 @@ export const DrawLine = (start: Point, end: Point, color: Vec3, data: ImageDataA
             writePixel(new Point(x, Math.round(y)), data, w, 0, color.r, color.g, color.b)
         }
     } else {
-        console.log("HERE")
         if (start.y > end.y) {
             [start, end] = [end, start]
         }
@@ -71,7 +74,6 @@ export const drawTriangle = (p0: Point, p1: Point, p2: Point, color: Vec3, data:
 export const DrawFilledTriangle = (p0: Point, p1: Point, p2: Point, color:Vec3, data: ImageDataArray, w: number) => {
     const pts = [p0, p1, p2].sort((a, b) => a.y - b.y) as [Point, Point, Point];
     [p0, p1, p2] = pts;
-    console.log(p0, p1, p2)
 
     let x01 = interpolate(p0.y, p0.x, p1.y, p1.x)
     const h01 = interpolate(p0.y, p0.h, p1.y, p1.h);
@@ -82,7 +84,6 @@ export const DrawFilledTriangle = (p0: Point, p1: Point, p2: Point, color:Vec3, 
     const x02 = interpolate(p0.y, p0.x, p2.y, p2.x)
     const h02 = interpolate(p0.y, p0.h, p2.y, p2.h);
 
-    console.log(x01, x12, x02)
     x01.pop()
     const x012 = [...x01, ...x12]
     const h012 = [...h01, ...h12]

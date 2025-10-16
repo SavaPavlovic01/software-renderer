@@ -1,4 +1,5 @@
 import { Camera } from "./camera.js";
+import { clearScreen, clearScrene } from "./drawPrimitives.js";
 import { Vec3 } from "./math.js";
 import type { SceneObject } from "./object.js";
 
@@ -40,6 +41,7 @@ export class Scene {
     }
 
     public renderScene() {
+        clearScreen(this.data); 
         this.objects.forEach((object) => {
             object.renderObject(this.data, this.camera)
         })
