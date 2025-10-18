@@ -1,10 +1,10 @@
 import { Point, Vec3 } from "./math.js"
 
 export const writePixel = (pixelCoords: Point, data: ImageDataArray, w: number, h: number, r: number = 0, g: number = 0, b: number = 0) => {
-    if(pixelCoords.y > w || pixelCoords.x > w) { // TODO: change when you fix the h
-        console.log("NPT")
-        return
-    }
+    //if(pixelCoords.y > w || pixelCoords.x > w) { // TODO: change when you fix the h
+    //    console.log("NPT")
+    //    return
+    //}
     const index = (Math.round(pixelCoords.y) * w + Math.round(pixelCoords.x)) * 4
     data[index] = r;
     data[index + 1] = g;
@@ -68,7 +68,7 @@ export const DrawLine = (start: Point, end: Point, color: Vec3, data: ImageDataA
 export const drawTriangle = (p0: Point, p1: Point, p2: Point, color: Vec3, data: ImageDataArray, w: number) => {
     DrawLine(p0, p1, color, data, w)
     DrawLine(p1, p2, color, data, w)
-    DrawLine(p2, p1, color, data, w)
+    DrawLine(p2, p0, color, data, w)
 }
 
 export const DrawFilledTriangle = (p0: Point, p1: Point, p2: Point, color:Vec3, data: ImageDataArray, w: number) => {

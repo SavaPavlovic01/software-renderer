@@ -255,7 +255,7 @@ export class ClippingPlane {
             return null
         }
 
-        const t = (-this.D -  planeNormal.dot(A)) / denominator;
+        const t = (this.D -  planeNormal.dot(A)) / denominator;
         return A.add(AB.mul(t));
     }
 }
@@ -286,7 +286,7 @@ export class Frustum {
         let relation = ObjectFrustumRelation.INSIDE;
         for(const plane of this.allPlanes) {
             const dist = plane.distFromPoint(sphere.center);
-            if(dist > sphere.radius) continue;
+            if(dist >= sphere.radius) continue;
             if(Math.abs(dist) < sphere.radius){
                 cutPlanes.push(plane);
                 relation = ObjectFrustumRelation.CUTS;

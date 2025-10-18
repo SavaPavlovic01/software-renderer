@@ -1,5 +1,5 @@
 import { Camera } from "./camera.js";
-import { clearScreen, clearScrene } from "./drawPrimitives.js";
+import { clearScreen } from "./drawPrimitives.js";
 import { Vec3 } from "./math.js";
 import type { SceneObject } from "./object.js";
 
@@ -10,6 +10,7 @@ export class Scene {
     private ctx: CanvasRenderingContext2D 
     private data: ImageDataArray
     private imageData: ImageData
+    private zBuffer: number[] = [];
 
     private initCanvas() {
         this.ctx.imageSmoothingEnabled = false;
@@ -34,6 +35,8 @@ export class Scene {
 
         this.imageData = this.ctx.createImageData(this.canvas.width, this.canvas.height)
         this.data = this.imageData.data
+
+        this.zBuffer = Array(this.data.length / 4).fill(Number.MAX_VALUE);
     }
 
     public addObject(object :SceneObject) {

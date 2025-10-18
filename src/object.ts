@@ -159,7 +159,8 @@ export abstract class SceneObject {
             const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
             let triangles: Triangle[] | null = [];
             if(state.relation == ObjectFrustumRelation.CUTS) {
-                triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
+                triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
+                //triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
             } else {
                 triangles = [new Triangle(pointInCameraSpace[0]!.toVec3(),
                     pointInCameraSpace[1]!.toVec3(), pointInCameraSpace[2]!.toVec3())]
