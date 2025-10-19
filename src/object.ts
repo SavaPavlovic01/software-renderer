@@ -106,28 +106,28 @@ export abstract class SceneObject {
         } else {
             // one point is inside, 2 outside
             const intersectionPoint1 = plane.intersectsLine(pointsInside[0]!, pointsOutside[0]!);
-            if(intersectionPoint1 == null) return null
+            if(intersectionPoint1 == null)  return null
             const intersectionPoint2 = plane.intersectsLine(pointsInside[0]!, pointsOutside[1]!);
             if(intersectionPoint2 == null) return null;
 
             return [ new Triangle(pointsInside[0]!, intersectionPoint1, intersectionPoint2)];
+
         }
     }
 
     private clipTriangleAgainstMultiplePlanes(p0: Vec3, p1: Vec3, p2: Vec3, planes: ClippingPlane[]) : Triangle[] {
-        const triangles: Triangle[] = [new Triangle(p0, p1, p2)];
+        let triangles: Triangle[] = [new Triangle(p0, p1, p2)];
         for(const plane of planes) {
-            for(let i = 0; i < triangles.length; i++) {
-                const triangle = triangles[i]!;
-                const newTriangles = this.clipTriangle(triangle.points[0]!, triangle.points[1]!, triangle.points[2]!, plane)
-                if(newTriangles == null) continue;
-                if(newTriangles.length == 1) triangles[i] = newTriangles[0]!;
-                if(newTriangles.length == 2) {
-                    triangles[i] = newTriangles[0]!;
-                    triangles.push(newTriangles[1]!);
-                }
-            } 
+            const newTriangles: Triangle[] = []
+            for(let triangle of triangles) {
+                const clipedTriangles = this.clipTriangle(triangle.points[0]!,triangle.points[1]!, triangle.points[2]!, plane )
+                if(clipedTriangles == null) continue;
+                newTriangles.push(...clipedTriangles);
+            }
+
+            triangles = newTriangles;
         }
+
         return triangles
     }
 
@@ -159,8 +159,8 @@ export abstract class SceneObject {
             const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
             let triangles: Triangle[] | null = [];
             if(state.relation == ObjectFrustumRelation.CUTS) {
-                //triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
-                triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
+                triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
+                //triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
             } else {
                 triangles = [new Triangle(pointInCameraSpace[0]!.toVec3(),
                     pointInCameraSpace[1]!.toVec3(), pointInCameraSpace[2]!.toVec3())]
@@ -172,13 +172,16 @@ export abstract class SceneObject {
                 return;
             }
             for(const triangle of triangles){
+                const z0 = triangle.points[0]!.b;
+                const z1 = triangle.points[1]!.b;
+                const z2 = triangle.points[2]!.b;
                 const p0Canvas = this.projectionMatrix.mult(triangle.points[0]!.toMat());
                 const p1Canvas = this.projectionMatrix.mult(triangle.points[1]!.toMat());
                 const p2Canvas = this.projectionMatrix.mult(triangle.points[2]!.toMat());
                 
-                const coordWithZ0 = Vec3.fromPoint(p0Canvas.toPoint(), pointInCameraSpace[0]!.mat[2]![0]!);
-                const coordWithZ1 = Vec3.fromPoint(p1Canvas.toPoint(), pointInCameraSpace[1]!.mat[2]![0]!);
-                const coordWithZ2 = Vec3.fromPoint(p2Canvas.toPoint(), pointInCameraSpace[2]!.mat[2]![0]!);
+                const coordWithZ0 = Vec3.fromPoint(p0Canvas.toPoint(), z0);
+                const coordWithZ1 = Vec3.fromPoint(p1Canvas.toPoint(), z1);
+                const coordWithZ2 = Vec3.fromPoint(p2Canvas.toPoint(), z2);
 
                 DrawFilledTriangle(coordWithZ0, coordWithZ1, coordWithZ2, triangleColor, data, this.cw, zBuffer); 
                 //drawTriangle(coordWithZ0, coordWithZ1, coordWithZ2, triangleColor, data, this.cw, zBuffer);

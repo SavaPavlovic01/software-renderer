@@ -47,7 +47,7 @@ const makeObjectMoveCallback = (object : SceneObject, scene: Scene): (ev: Keyboa
     }
 }
 
-const main = () => {
+const main = (spin: boolean = true) => {
     const canvas = document.getElementById("screen") as HTMLCanvasElement
     const scene = new Scene(canvas)
 
@@ -61,10 +61,12 @@ const main = () => {
 
     window.onkeydown = makeObjectMoveCallback(cube, scene);
 
-    setInterval(() => {
-       cube.rotate(0.1, 0.1, 0.1);
-       scene.renderScene(); 
-    }, 20);
+    if(spin) {
+        setInterval(() => {
+            cube.rotate(0.1, 0.1, 0.1);
+            scene.renderScene();
+        }, 20);
+    }
 
     scene.addObject(cube);
     //scene.addObject(triangle);
