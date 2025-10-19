@@ -160,6 +160,7 @@ export class Mat {
 
         throw new Error("CANT TURN IT INTO VEC3");
     }
+
 }
 
 export class Vec3 {
@@ -208,6 +209,14 @@ export class Vec3 {
         ret.mat[2]![0] = this.b;
         ret.mat[3]![0] = 1
         return ret;
+    }
+
+    public xy(): Point {
+        return new Point(this.r, this.g);
+    }
+
+    public static fromPoint(point: Point, z: number) : Vec3 {
+        return new Vec3(point.x, point.y, 1 / z);
     }
 }
 

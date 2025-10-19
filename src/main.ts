@@ -47,10 +47,7 @@ const makeObjectMoveCallback = (object : SceneObject, scene: Scene): (ev: Keyboa
     }
 }
 
-
-window.onload = () => {
-
-
+const main = () => {
     const canvas = document.getElementById("screen") as HTMLCanvasElement
     const scene = new Scene(canvas)
 
@@ -62,11 +59,28 @@ window.onload = () => {
     const triangle = new TriangleObject(cubePos.add(new Vec3(4, 0, -5)), cubeRotation, cubeScale, canvas.width, canvas.height);
     //const cube2 = new Cube(cubePos.add(new Vec3(3, 0, 0)), cubeRotation, cubeScale, canvas.width, canvas.height)
 
-    window.onkeydown = makeObjectMoveCallback(triangle, scene);
+    window.onkeydown = makeObjectMoveCallback(cube, scene);
+
+    setInterval(() => {
+       cube.rotate(0.1, 0.1, 0.1);
+       scene.renderScene(); 
+    }, 20);
 
     scene.addObject(cube);
-    scene.addObject(triangle);
+    //scene.addObject(triangle);
     //scene.addObject(cube2);
     scene.renderScene();
+}
 
+const test = () => {
+
+    const canvas = document.getElementById("screen") as HTMLCanvasElement
+    const scene = new Scene(canvas)
+    const triangles = scene.test();
+    window.onkeydown = makeObjectMoveCallback(triangles[0]!, scene);
+}
+
+
+window.onload = () => {
+    main();
 }

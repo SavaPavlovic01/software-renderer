@@ -1,5 +1,5 @@
 import type { Camera } from "./camera.js"
-import { drawTriangle } from "./drawPrimitives.js"
+import { DrawFilledTriangle, drawTriangle } from "./drawPrimitives.js"
 import { ClippingPlane, Mat, ObjectFrustumRelation, Triangle, Vec3 } from "./math.js"
 
 export abstract class SceneObject {
@@ -131,7 +131,7 @@ export abstract class SceneObject {
         return triangles
     }
 
-    public renderObject(data: ImageDataArray, camera: Camera): void {
+    public renderObject(data: ImageDataArray, camera: Camera, zBuffer: number[]): void {
         const viewMatrix = Mat.cameraMatrix(camera.translate, camera.rotation).mult(this.modelMatrix);
 
         const state= this.isInsideClippingSpace(viewMatrix, camera); 
@@ -159,8 +159,8 @@ export abstract class SceneObject {
             const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
             let triangles: Triangle[] | null = [];
             if(state.relation == ObjectFrustumRelation.CUTS) {
-                triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
-                //triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
+                //triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
+                triangles = this.clipTriangle(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes[0]!)
             } else {
                 triangles = [new Triangle(pointInCameraSpace[0]!.toVec3(),
                     pointInCameraSpace[1]!.toVec3(), pointInCameraSpace[2]!.toVec3())]
@@ -175,8 +175,13 @@ export abstract class SceneObject {
                 const p0Canvas = this.projectionMatrix.mult(triangle.points[0]!.toMat());
                 const p1Canvas = this.projectionMatrix.mult(triangle.points[1]!.toMat());
                 const p2Canvas = this.projectionMatrix.mult(triangle.points[2]!.toMat());
+                
+                const coordWithZ0 = Vec3.fromPoint(p0Canvas.toPoint(), pointInCameraSpace[0]!.mat[2]![0]!);
+                const coordWithZ1 = Vec3.fromPoint(p1Canvas.toPoint(), pointInCameraSpace[1]!.mat[2]![0]!);
+                const coordWithZ2 = Vec3.fromPoint(p2Canvas.toPoint(), pointInCameraSpace[2]!.mat[2]![0]!);
 
-                drawTriangle(p0Canvas.toPoint(), p1Canvas.toPoint(), p2Canvas.toPoint(), triangleColor, data, this.cw);
+                DrawFilledTriangle(coordWithZ0, coordWithZ1, coordWithZ2, triangleColor, data, this.cw, zBuffer); 
+                //drawTriangle(coordWithZ0, coordWithZ1, coordWithZ2, triangleColor, data, this.cw, zBuffer);
             }
 
         })        
@@ -184,6 +189,11 @@ export abstract class SceneObject {
 
     public move(x : number, y: number, z: number) {
         this.translate = this.translate.add(new Vec3(x, y, z));
+        this.updateModelMatrix();
+    }
+
+    public rotate(x : number, y: number, z: number) {
+        this.rotation = this.rotation.add(new Vec3(x, y, z));
         this.updateModelMatrix();
     }
 
