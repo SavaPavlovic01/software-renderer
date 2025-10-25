@@ -218,6 +218,14 @@ export class Vec3 {
     public static fromPoint(point: Point, z: number) : Vec3 {
         return new Vec3(point.x, point.y, 1 / z);
     }
+
+    public cross(v : Vec3) : Vec3 {
+        return new Vec3(
+            this.g * v.b - this.b * v.g, 
+            this.b * v.r - this.r * v.b, 
+            this.r * v.g - this.g * v.r  
+        );
+    }
 }
 
 

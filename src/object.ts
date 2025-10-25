@@ -131,6 +131,17 @@ export abstract class SceneObject {
         return triangles
     }
 
+    private isBackFace(pointsInCameraSpace: [Vec3, Vec3, Vec3], camera: Camera) : boolean {
+        const line1 = pointsInCameraSpace[1].sub(pointsInCameraSpace[0]);
+        const line2 = pointsInCameraSpace[2].sub(pointsInCameraSpace[0]);
+
+        const normalVector = line1.cross(line2);
+
+        const vertexToCamera = camera.translate.sub(pointsInCameraSpace[0]);
+        
+        return normalVector.dot(vertexToCamera) <= 0;
+    }
+
     public renderObject(data: ImageDataArray, camera: Camera, zBuffer: number[]): void {
         const viewMatrix = Mat.cameraMatrix(camera.translate, camera.rotation).mult(this.modelMatrix);
 
@@ -157,6 +168,10 @@ export abstract class SceneObject {
             }
 
             const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
+            if(this.isBackFace([pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3()], camera)){
+                console.log("BACK FACE SKIP");
+                return;
+            }
             let triangles: Triangle[] | null = [];
             if(state.relation == ObjectFrustumRelation.CUTS) {
                 triangles = this.clipTriangleAgainstMultiplePlanes(pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3(), state.cutPlanes)
