@@ -54,7 +54,7 @@ const main = (spin: boolean = true) => {
 
     const cubePos = new Vec3(-3, 0, 10)
     const cubeRotation = new Vec3(0, 0, 0);
-    const cubeScale = new Vec3(0.1, 0.1, 0.1)
+    const cubeScale = new Vec3(0.5, 0.5, 0.5)
 
     //const cube = new Cube(cubePos, cubeRotation, cubeScale, canvas.width, canvas.height)
     //const triangle = new TriangleObject(cubePos.add(new Vec3(4, 0, -5)), cubeRotation, cubeScale, canvas.width, canvas.height);

@@ -14,6 +14,8 @@ export class ModelObject extends SceneObject {
         super(worldPos, rotation, scale, cw, ch);
 
         ObjParser.parseStatue().then(value => {
+            console.log(value[0])
+            console.log(value[1])
             this.vertices = value[0];
             this.triangles = value[1];
         });
@@ -57,7 +59,7 @@ export class ObjParser {
 
                     if(parts.length == 4) {
                         for(let i = 0; i < 3; i++) {
-                            indecies.push(parseInt(parts[i + 1]!));
+                            indecies.push(parseInt(parts[i + 1]!) - 1);
                         }
                         triangles.push(new Vec3(indecies[0], indecies[1], indecies[2]))
                         break;
@@ -65,8 +67,8 @@ export class ObjParser {
 
                     for(let i = 0; i < 4; i++) {
                         let vertIndex = -1;
-                        if(parts[i + 1]!.includes("\\")) vertIndex = parseInt(parts[i + 1]!.split('\\')[0]!);
-                        else vertIndex = parseInt(parts[i + 1]!)
+                        if(parts[i + 1]!.includes("\\")) vertIndex = parseInt(parts[i + 1]!.split('\\')[0]!) - 1;
+                        else vertIndex = parseInt(parts[i + 1]!) - 1
                         indecies.push(vertIndex);
                     }
 
