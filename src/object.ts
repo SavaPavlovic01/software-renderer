@@ -143,6 +143,7 @@ export abstract class SceneObject {
     }
 
     public renderObject(data: ImageDataArray, camera: Camera, zBuffer: number[]): void {
+        if(!this.vertices || this.vertices.length === 0) return
         const viewMatrix = Mat.cameraMatrix(camera.translate, camera.rotation).mult(this.modelMatrix);
 
         const state= this.isInsideClippingSpace(viewMatrix, camera); 
@@ -169,7 +170,7 @@ export abstract class SceneObject {
 
             const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
             if(this.isBackFace([pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3()], camera)){
-                console.log("BACK FACE SKIP");
+                //console.log("BACK FACE SKIP");
                 return;
             }
             let triangles: Triangle[] | null = [];
