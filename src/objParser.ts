@@ -23,7 +23,7 @@ export class ModelObject extends SceneObject {
 
 export class ObjParser {
     public static async parseStatue(): Promise<[Vec3[], Vec3[]]>  {
-        const resp = await fetch("/statue.obj");
+        const resp = await fetch("/brat.obj");
         const objText = await resp.text();
     
         const lines = objText.split("\n")
@@ -53,15 +53,26 @@ export class ObjParser {
                 case "f": {
                     // you can have different shit here, my obj file has f (int/int/int) x 4
                     // TODO: maybe add the other shit here
-                    if(parts.length != 5) throw new Error("not yet supported");
                     const indecies:number[] = []
+
+                    if(parts.length == 4) {
+                        for(let i = 0; i < 3; i++) {
+                            indecies.push(parseInt(parts[i + 1]!));
+                        }
+                        triangles.push(new Vec3(indecies[0], indecies[1], indecies[2]))
+                        break;
+                    }
+
                     for(let i = 0; i < 4; i++) {
-                        const vertIndex = parseInt(parts[i + 1]!.split('\\')[0]!);
+                        let vertIndex = -1;
+                        if(parts[i + 1]!.includes("\\")) vertIndex = parseInt(parts[i + 1]!.split('\\')[0]!);
+                        else vertIndex = parseInt(parts[i + 1]!)
                         indecies.push(vertIndex);
                     }
 
                     triangles.push(new Vec3(indecies[0], indecies[1], indecies[2]))
                     triangles.push(new Vec3(indecies[0], indecies[2], indecies[3]))
+                    break;
                 }
             }
         }

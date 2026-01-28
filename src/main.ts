@@ -86,5 +86,5 @@ const test = () => {
 
 
 window.onload = () => {
-    main(false);
+    main();
 }
