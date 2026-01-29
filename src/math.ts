@@ -34,6 +34,35 @@ export class Mat {
         return result;
     }
 
+    public multWithVec(other: Vec3): Mat {
+        const rowsA = this.mat.length;
+        const colsA = this.mat[0]!.length;
+        const rowsB = 4;
+        const colsB = 1;
+
+        if (colsA !== rowsB) {
+            throw new Error(
+                `Matrix multiplication not possible: ${colsA} != ${rowsB}`
+            );
+        }
+
+        const result = new Mat(rowsA, colsB)
+        const otherVals = [other.r, other.g, other.b, 1]
+
+        for (let i = 0; i < rowsA; i++) {
+            for (let j = 0; j < colsB; j++) {
+                let sum = 0;
+                for (let k = 0; k < colsA; k++) {
+                    sum += this.mat[i]![k]! * otherVals[k]!;
+                }
+                result.mat[i]![j] = sum;
+            }
+        }
+
+        return result
+
+    }
+
 
     static makeScaleMatrix(scale: Vec3): Mat {
         const ret = new Mat(4, 4);

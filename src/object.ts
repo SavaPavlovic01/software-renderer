@@ -67,6 +67,10 @@ export abstract class SceneObject {
         return [viewMatrix.mult(p0), viewMatrix.mult(p1), viewMatrix.mult(p2)]
     }
 
+    private toCameraSpaceFaster(p0: Vec3, p1: Vec3, p2: Vec3, viewMatrix: Mat) : [Mat, Mat, Mat] {
+        return [viewMatrix.multWithVec(p0), viewMatrix.multWithVec(p1), viewMatrix.multWithVec(p2)]
+    }
+
     private isInsideClippingSpace(viewMatrix: Mat, camera: Camera): {relation: ObjectFrustumRelation, cutPlanes: ClippingPlane[]} {
         const sphereInModelSpace = this.getBoundingSphere()
         const sphereCenterViewSpace = viewMatrix.mult(sphereInModelSpace.center.toMat());
@@ -159,16 +163,16 @@ export abstract class SceneObject {
 
         this.triangles.forEach( (v, i) => {
 
-            const p0 = this.vertices[v.r]?.toMat();
-            const p1 = this.vertices[v.g]?.toMat();
-            const p2 = this.vertices[v.b]?.toMat();
+            const p0 = this.vertices[v.r];
+            const p1 = this.vertices[v.g];
+            const p2 = this.vertices[v.b];
 
             if(p0 == undefined || p1 == undefined || p2 == undefined) {
                 console.log("UNEXPETCED");
                 return
             }
 
-            const pointInCameraSpace = this.toCameraSpace(p0, p1, p2, viewMatrix);
+            const pointInCameraSpace = this.toCameraSpaceFaster(p0, p1, p2, viewMatrix);
             if(this.isBackFace([pointInCameraSpace[0]!.toVec3(),pointInCameraSpace[1]!.toVec3(),pointInCameraSpace[2]!.toVec3()], camera)){
                 //console.log("BACK FACE SKIP");
                 return;
@@ -191,9 +195,9 @@ export abstract class SceneObject {
                 const z0 = triangle.points[0]!.b;
                 const z1 = triangle.points[1]!.b;
                 const z2 = triangle.points[2]!.b;
-                const p0Canvas = this.projectionMatrix.mult(triangle.points[0]!.toMat());
-                const p1Canvas = this.projectionMatrix.mult(triangle.points[1]!.toMat());
-                const p2Canvas = this.projectionMatrix.mult(triangle.points[2]!.toMat());
+                const p0Canvas = this.projectionMatrix.multWithVec(triangle.points[0]!);
+                const p1Canvas = this.projectionMatrix.multWithVec(triangle.points[1]!);
+                const p2Canvas = this.projectionMatrix.multWithVec(triangle.points[2]!);
                 
                 const coordWithZ0 = Vec3.fromPoint(p0Canvas.toPoint(), z0);
                 const coordWithZ1 = Vec3.fromPoint(p1Canvas.toPoint(), z1);
